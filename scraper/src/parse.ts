@@ -1,3 +1,5 @@
+import { measurementTerms } from './data';
+
 const isNumeric = (str: string) => {
     return !isNaN(+str);
 }
@@ -9,45 +11,10 @@ const isData = (str: string) => {
 }
 
 const isMeasurement = (str: string) => {
-    const allowlist = [
-        'seat',
-        'tube',
-        'length',
-        'top',
-        'head',
-        'fork',
-        'rake',
-        'trail',
-        'wheelbase',
-        'chain',
-        'stay',
-        'bottom',
-        'bracket',
-        'stack',
-        'reach',
-        'stand',
-        'over',
-        'height',
-        'handlebar',
-        'width',
-        'stem',
-        'crank',
-        'wheel',
-        'size',
-        'angle',
-        'drop',
-        'bb',
-        'effective',
-        'actual',
-        'standover',
-        'chainstay',
-        ''
-    ];
-
-    return allowlist.includes(str.toLowerCase());
+    return measurementTerms.includes(str.toLowerCase());
 }
 
-export const parse = (text: string | null) => {
+export const parse = (text: string | null): Record<string, any>[] | null => {
     if (!text) {
         return null;
     }

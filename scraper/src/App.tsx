@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useMount } from 'react-use';
 import { Container, Grid, Box, TextField, Button, LinearProgress, makeStyles } from '@material-ui/core';
 
+import { Editor } from './components';
 import { parse } from './parse';
 import { useOCR } from './hooks/useOCR';
 
@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   container: {
     width: '100%',
   }
-})
+});
 
 function App() {
   const styles = useStyles();
@@ -32,6 +32,12 @@ function App() {
 
   const geometry = parse(text);
 
+  const onKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      setUrl(input);
+    }
+  }
+
   return (
     <Container maxWidth="md">
       <Grid container direction="column" className={styles.container}>
@@ -39,31 +45,35 @@ function App() {
           <Box paddingBottom={2} paddingTop={4}>
             <Grid container alignItems="center" spacing={ 2 }>
               <Grid item xs={12} md={10}>
-                <TextField className={styles.input} label="Image URL" variant="outlined" onChange={(e) => setInput(e.target.value)} />
+                <TextField
+                  className={styles.input}
+                  label="IMAGE URL"
+                  defaultValue={'/images/giant.png'}
+                  onKeyPress={ onKeyPress }
+                  variant="outlined"
+                  onChange={(e) => setInput(e.target.value)}
+                />
               </Grid>
               <Grid item xs={12} md={2}>
-                <Button variant="contained" fullWidth size="large" onClick={() => setUrl(input)}>Recognize</Button>
+                <Button variant="contained" color="primary" fullWidth size="large" onClick={() => setUrl(input)}>Scrape</Button>
               </Grid>
             </Grid>
           </Box>
           <Box paddingBottom={2}>
             <Grid container justify="space-between">
               <Grid item>
-                <p>{ progressLabel } { progress > 0 ? `${progress}%` : '' }</p>
+                <p>{ progressLabel ? progressLabel : 'Ready' } { progress > 0 ? `${progress}%` : '' }</p>
               </Grid>
               <Grid item>
-                <p>{ url }</p>
+                <p>{ url ? url : '...' }</p>
               </Grid>
             </Grid>
             <LinearProgress value={progress} variant="determinate" />
           </Box>
           <Box>
-            { url && <img src={url?.toString()} className={styles.image} /> }
-            { !url && <div className={styles.placeholderImage}>Enter Image URL</div> }
+            <Editor url={url} geometry={geometry} />
+            <pre>{ JSON.stringify(geometry, null, 4) }</pre>
           </Box>
-        </Grid>
-        <Grid item>
-          <pre>{ JSON.stringify(geometry, null, 4) }</pre>
         </Grid>
       </Grid>
     </Container>
