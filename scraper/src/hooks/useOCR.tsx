@@ -11,13 +11,17 @@ interface WorkerLog {
 
 export const useOCR = () => {
     const [ progress, setProgress ] = useState(0);
-    const [ text, setText ] = useState('');
+    const [ progressLabel, setProgressLabel ] = useState<string | null>(null);
+    const [ text, setText ] = useState<string | null>(null);
     const [ url, setUrl ] = useState<Tesseract.ImageLike | null>(null);
 
     useAsync(async () => {
         if (url) {
             const worker = createWorker({
-                logger: (log: WorkerLog) => setProgress(Math.round(log.progress * 100)),
+                logger: ((log: WorkerLog) => {
+                    setProgressLabel(log.status);
+                    setProgress(Math.round(log.progress * 100));
+                }),
             });
     
             await worker.load();
@@ -34,6 +38,7 @@ export const useOCR = () => {
 
     return {
         progress,
+        progressLabel,
         text,
         setUrl,
         url
