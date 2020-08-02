@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAsync } from 'react-use';
 import { createWorker } from 'tesseract.js';
+import { useApp } from '.';
+import { parse } from '../parse';
 
 interface WorkerLog {
     jobId: string
@@ -10,13 +12,12 @@ interface WorkerLog {
 }
 
 export const useOCR = () => {
+    const { image } = useApp();
     const [ progress, setProgress ] = useState(0);
     const [ progressLabel, setProgressLabel ] = useState<string | null>(null);
-    const [ text, setText ] = useState<string | null>(null);
-    const [ url, setUrl ] = useState<Tesseract.ImageLike | null>(null);
 
     useAsync(async () => {
-        if (url) {
+        if (image.url) {
             const worker = createWorker({
                 logger: ((log: WorkerLog) => {
                     setProgressLabel(log.status);
@@ -28,19 +29,14 @@ export const useOCR = () => {
             await worker.loadLanguage('eng');
             await worker.initialize('eng');
     
-            const { data: { text } } = await worker.recognize(url);
-
-            console.log(text);
+            const { data: { text } } = await worker.recognize(image.url);
     
-            setText(text);
+            image.setGeometry(parse(text));
         }
-    }, [ url ]);
+    }, [ image.url ]);
 
     return {
         progress,
         progressLabel,
-        text,
-        setUrl,
-        url
     };
 }

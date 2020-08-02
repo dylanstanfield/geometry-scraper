@@ -3,7 +3,7 @@ import { Container, Grid, Box, TextField, Button, LinearProgress, makeStyles } f
 
 import { Editor } from './components';
 import { parse } from './parse';
-import { useOCR } from './hooks/useOCR';
+import { useOCR, useApp } from './hooks';
 
 const useStyles = makeStyles({
   image: {
@@ -27,14 +27,13 @@ const useStyles = makeStyles({
 
 function App() {
   const styles = useStyles();
-  const { progress, progressLabel, text, url, setUrl } = useOCR();
+  const { image } = useApp();
+  const { progress, progressLabel } = useOCR();
   const [ input, setInput ] = useState<string | null>(null)
-
-  const geometry = parse(text);
-
+  
   const onKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
-      setUrl(input);
+      image.setUrl(input);
     }
   }
 
@@ -42,12 +41,13 @@ function App() {
     <Container maxWidth="md">
       <Grid container direction="column" className={styles.container}>
         <Grid item>
-          <Box paddingBottom={2} paddingTop={4}>
-            <Grid container alignItems="center" spacing={ 2 }>
+          <Box paddingTop={3}>
+            <Grid container alignItems="center" spacing={2}>
               <Grid item xs={12} md={10}>
                 <TextField
                   className={styles.input}
                   label="IMAGE URL"
+                  size="small"
                   defaultValue={'/images/giant.png'}
                   onKeyPress={ onKeyPress }
                   variant="outlined"
@@ -55,7 +55,7 @@ function App() {
                 />
               </Grid>
               <Grid item xs={12} md={2}>
-                <Button variant="contained" color="primary" fullWidth size="large" onClick={() => setUrl(input)}>Scrape</Button>
+                <Button variant="contained" color="primary" fullWidth onClick={() => image.setUrl(input)}>Scrape</Button>
               </Grid>
             </Grid>
           </Box>
@@ -65,13 +65,13 @@ function App() {
                 <p>{ progressLabel ? progressLabel : 'Ready' } { progress > 0 ? `${progress}%` : '' }</p>
               </Grid>
               <Grid item>
-                <p>{ url ? url : '...' }</p>
+                <p>{ image.url ? image.url : '...' }</p>
               </Grid>
             </Grid>
             <LinearProgress value={progress} variant="determinate" />
           </Box>
           <Box>
-            <Editor url={url} geometry={geometry} />
+            <Editor />
           </Box>
         </Grid>
       </Grid>
