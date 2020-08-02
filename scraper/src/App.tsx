@@ -33,6 +33,7 @@ function App() {
   const onKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       image.setUrl(input);
+      (document.activeElement as HTMLElement).blur();
     }
   }
 
@@ -48,7 +49,7 @@ function App() {
                   label="IMAGE URL"
                   size="small"
                   defaultValue={'/images/giant.png'}
-                  onKeyPress={ onKeyPress }
+                  onKeyPress={onKeyPress}
                   variant="outlined"
                   onChange={(e) => setInput(e.target.value)}
                 />

@@ -1,6 +1,9 @@
 import React from 'react';
-import { Grid, TextField, Button, makeStyles, Theme, Slider } from '@material-ui/core';
+import { Grid, makeStyles, Theme, Slider } from '@material-ui/core';
+import { useHotkeys } from 'react-hotkeys-hook';
+
 import { useApp } from '../hooks';
+import { Controls } from '.';
 
 const colors = {
     green: '#00e676',
@@ -67,12 +70,24 @@ export const Editor: React.FC = () => {
         approvedLabels: controls.approved,
     });
 
+    useHotkeys('q', () => {
+        if (controls.overlayOffset > 1) {
+            controls.setOverlayOffset(controls.overlayOffset - 2);
+        }
+    }, {}, [controls.overlayOffset]);
+
+    useHotkeys('e', () => {
+        if (controls.overlayOffset < 99) {
+            controls.setOverlayOffset(controls.overlayOffset + 2);
+        }
+    }, {}, [controls.overlayOffset]);
+
     const updateMatrix = (i1: number, i2: number, newValue: string) => {
         const newMatrix = [ ...image.matrix ];
         newMatrix[i1][i2] = newValue;
         image.setMatrix(newMatrix);
     }
-    
+
     if (!image.url) {
         return <div className={styles.placeholder}>Enter Image URL</div>
     }
@@ -91,50 +106,13 @@ export const Editor: React.FC = () => {
                     })
                 }</Grid>
             </Grid>
-            <Grid item md={2}>
-                <TextField
-                    id="standard-number"
-                    label="FONT SIZE"
-                    type="number"
-                    fullWidth
-                    defaultValue={controls.fontSize}
-                    onChange={({ target }) => controls.setFontSize(target.value)}
-                />
-            </Grid>
-            <Grid item md={2} />
-            <Grid item md={1}>
-                <Button disabled={controls.selectedIndex <= 0}
-                    variant={'outlined'}
-                    fullWidth
-                    onClick={() => controls.setSelectedIndex(controls.selectedIndex - 1)}>
-                    { '<' }
-                </Button>
-            </Grid>
-            <Grid item md={2} style={{ textAlign: 'center' }}>
-                { controls.selectedLabel }
-            </Grid>
-            <Grid item md={1}>
-                <Button disabled={controls.selectedIndex >= image.matrix.length - 1}
-                    variant={'outlined'}
-                    fullWidth
-                    onClick={() => controls.setSelectedIndex(controls.selectedIndex + 1)}>
-                    { '>' }
-                </Button>
-            </Grid>
-            <Grid item md={2} />
-            <Grid item md={2}>
-                <Button variant={'outlined'}
-                    color={'primary'}
-                    fullWidth
-                    onClick={() => { controls.setApproved(Array.from(new Set([ ...controls.approved, controls.selectedLabel ]))) } }>
-                    Save { controls.selectedLabel }
-                </Button>
-            </Grid>
+            <Controls />
             <Grid item xs={12}>
                 <Slider
                     defaultValue={0}
                     min={0}
                     max={100}
+                    value={controls.overlayOffset}
                     onChange={(_, value) => controls.setOverlayOffset(value as number)}
                 />
                 <div className={styles.container}>
@@ -144,6 +122,7 @@ export const Editor: React.FC = () => {
                             image.matrix[controls.selectedIndex].map(
                                 (str, i) => (
                                     <input type="text"
+                                        disabled={ controls.approved.includes(controls.selectedLabel) }
                                         value={str}
                                         onChange={(e) => updateMatrix(controls.selectedIndex, i, e.target.value)}
                                         className={styles.overlayInput} />
