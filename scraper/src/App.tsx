@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Container, Grid, Box, TextField, Button, LinearProgress, makeStyles } from '@material-ui/core';
 
 import { Editor } from './components';
-import { parse } from './parse';
 import { useOCR, useApp } from './hooks';
 
 const useStyles = makeStyles({
@@ -30,7 +29,7 @@ function App() {
   const { image } = useApp();
   const { progress, progressLabel } = useOCR();
   const [ input, setInput ] = useState<string | null>(null)
-  
+
   const onKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       image.setUrl(input);

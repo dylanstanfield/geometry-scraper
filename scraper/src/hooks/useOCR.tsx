@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAsync } from 'react-use';
 import { createWorker } from 'tesseract.js';
 import { useApp } from '.';
-import { parse } from '../parse';
+import { parse } from '../utils';
 
 interface WorkerLog {
     jobId: string

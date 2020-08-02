@@ -1,4 +1,4 @@
-import { measurementTerms } from './data';
+import { measurementTerms } from '../data';
 
 const isNumeric = (str: string) => {
     return !isNaN(+str);
