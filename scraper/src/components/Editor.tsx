@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Grid, Box, TextField, Button, LinearProgress, makeStyles, Theme, Slider, fade } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { Grid, TextField, Button, makeStyles, Theme, Slider } from '@material-ui/core';
 
 
 const testGeometry = [
@@ -222,6 +222,7 @@ interface EditorProps {
 interface StylesProps {
     fontSize: string,
     overlayOffset: number,
+    overlayNumChars: number,
 }
 
 const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
@@ -242,19 +243,25 @@ const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
     overlay: {
         display: 'flex',
         flexDirection: 'column',
-        background: fade(theme.palette.primary.main, 0.2),
+        background: 'rgba(255, 255, 255, 0.6)',
+        border: `1px solid ${theme.palette.primary.main}`,
         position: 'absolute',
         top: 0,
         minWidth: '10px',
         left: (props) => `${props.overlayOffset}%`,
         height: 'calc(100% - 8px)',
-        backdropFilter: 'blur(4px)',
+        backdropFilter: 'blur(3px)',
         overflow: 'hiden',
     },
-    overlayRow: {
+    overlayInput: {
         flex: 1,
         padding: theme.spacing(0.5, 2),
         fontSize: (props) => `${props.fontSize}px`,
+        border: 'none',
+        borderBottom: `1px solid rgba(0, 0, 0, 0.1)`,
+        outline: 'none',
+        width: ({ fontSize, overlayNumChars }) => `${(parseInt(fontSize, 10) - 4) * overlayNumChars}px`,
+        background: 'transparent',
     },
 }));
 
@@ -266,42 +273,96 @@ const getMatrix = (geometry: Record<string, any>[]) => {
 }
 
 export const Editor: React.FC<EditorProps> = ({ url, geometry }) => {
-    const [fontSize, setFontSize] = useState('12');
+    const [fontSize, setFontSize] = useState('11');
     const [overlayOffset, setOverlayOffset] = useState(0);
     const [maxtrixIndex, setMatrixIndex] = useState(0);
-    const styles = useStyles({ fontSize, overlayOffset });
+    const [matrix, setMatrix] = useState(getMatrix(geometry || [[]]));
+
+    useEffect(() => {
+        if (geometry) {
+            setMatrix(getMatrix(geometry))
+        }
+    }, [geometry])
+
+    const overlayNumChars = matrix[maxtrixIndex].reduce((len, str) => str.length > len ? str.length : len, 0);
+    const styles = useStyles({ fontSize, overlayOffset, overlayNumChars });
+
+    const updateMatrix = (i1: number, i2: number, newValue: string) => {
+        const newMatrix = [ ...matrix ];
+        newMatrix[i1][i2] = newValue;
+        console.log(newMatrix);
+        setMatrix(newMatrix);
+    }
     
-    // if (!url) {
-    //     return <div className={styles.placeholderImage}>Enter Image URL</div>
-    // }
+    if (!url) {
+        return <div className={styles.placeholderImage}>Enter Image URL</div>
+    }
     
-    const matrix = getMatrix(geometry ? geometry : testGeometry);
+    const selectedLabel = maxtrixIndex === 0 ? 'KEYS' : matrix[maxtrixIndex][0];
 
     return (
         <div>
             <div className={styles.container}>
-                <img src={url?.toString() ?? '/images/cross-check.png'} className={styles.image} />
+                <img alt="being scraped" src={url.toString()} className={styles.image} />
                 <div className={styles.overlay}>
-                    { matrix[maxtrixIndex].map(key => <div className={styles.overlayRow}>{ key }</div>) }
+                    {
+                        matrix[maxtrixIndex].map(
+                            (str, i) => (
+                                <input type="text"
+                                    value={str}
+                                    onChange={(e) => updateMatrix(maxtrixIndex, i, e.target.value)}
+                                    className={styles.overlayInput} />
+                            )
+                        )
+                    }
                 </div>
             </div>
             <Slider
-                defaultValue={overlayOffset}
+                defaultValue={0}
                 min={0}
                 max={100}
-                onChange={(e, value) => setOverlayOffset(value as number)}
+                onChange={(_, value) => setOverlayOffset(value as number)}
             />
 
-            <TextField
-                id="standard-number"
-                label="FONT SIZE"
-                type="number"
-                defaultValue={fontSize}
-                onChange={({ target }) => setFontSize(target.value)}
-            />
-
-            <Button onClick={() => setMatrixIndex(maxtrixIndex - 1)}>Previous</Button>
-            <Button onClick={() => setMatrixIndex(maxtrixIndex + 1)}>Next</Button>
+            <Grid container spacing={2} justify="center" alignItems="center">
+                <Grid item md={2}>
+                    <TextField
+                        id="standard-number"
+                        label="FONT SIZE"
+                        type="number"
+                        fullWidth
+                        defaultValue={fontSize}
+                        onChange={({ target }) => setFontSize(target.value)}
+                    />
+                </Grid>
+                <Grid item md={1}>
+                    <Button disabled={maxtrixIndex <= 0}
+                        variant={'outlined'}
+                        fullWidth
+                        onClick={() => setMatrixIndex(maxtrixIndex - 1)}>
+                        { '<' }
+                    </Button>
+                </Grid>
+                <Grid item md={1} style={{ textAlign: 'center' }}>
+                    { selectedLabel }
+                </Grid>
+                <Grid item md={1}>
+                    <Button disabled={maxtrixIndex >= matrix.length - 1}
+                        variant={'outlined'}
+                        fullWidth
+                        onClick={() => setMatrixIndex(maxtrixIndex + 1)}>
+                        { '>' }
+                    </Button>
+                </Grid>
+                <Grid item md={2}>
+                    <Button variant={'outlined'}
+                        color={'primary'}
+                        fullWidth
+                        onClick={() => {}}>
+                        Save { selectedLabel }
+                    </Button>
+                </Grid>
+            </Grid>
         </div>
     )
 }

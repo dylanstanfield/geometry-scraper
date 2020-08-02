@@ -72,7 +72,6 @@ function App() {
           </Box>
           <Box>
             <Editor url={url} geometry={geometry} />
-            <pre>{ JSON.stringify(geometry, null, 4) }</pre>
           </Box>
         </Grid>
       </Grid>

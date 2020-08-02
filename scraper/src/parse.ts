@@ -53,8 +53,8 @@ export const parse = (text: string | null): Record<string, any>[] | null => {
     sizes.forEach((size, sizeIndex) => {
         const geo: Record<string, any> = { size };
         
-        measurements.forEach((measurement, measurementIndex) => {
-            geo[measurement] = matrix[measurementIndex][sizeIndex];
+        measurements.filter(str => !!str).forEach((measurement, measurementIndex) => {
+            geo[measurement] = matrix[measurementIndex][sizeIndex] || 'n/a';
         })
 
         geos.push(geo);
