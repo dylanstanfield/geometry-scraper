@@ -1,4 +1,11 @@
+import Fuse from 'fuse.js';
+
 import { measurementTerms } from '../data';
+
+const fuse = new Fuse(measurementTerms, {
+    includeScore: true,
+    threshold: 0.2, // 20%
+});
 
 const isNumeric = (str: string) => {
     return !isNaN(+str);
@@ -10,22 +17,22 @@ const isData = (str: string) => {
     return isNumeric(str) || allowlist.includes(str.toLowerCase());
 }
 
-const isMeasurement = (str: string) => {
-    return measurementTerms.includes(str.toLowerCase());
+const getMeasurement = (str: string) => {
+    const results = fuse.search(str);
+    return results.length ? results[0]?.item : null;
 }
 
-export const parse = (text: string | null): Record<string, any>[] | null => {
+export const parse = (text: string | null): string[][] | null => {
     if (!text) {
         return null;
     }
 
-    const [ sizeRow, ...rows ] = text.split('\n');
+    const [ sizeRawRow, ...rawRows ] = text.split('\n');
 
-    const sizes = sizeRow.split(' ').map((str) => str.trim()).filter(str => !!str);
-    const measurements: string[] = [];
-    const matrix: string[][] = []
+    const sizes = sizeRawRow.split(' ').map((str) => str.trim()).filter(str => !!str);
+    const rows: string[][] = []
 
-    rows.forEach((row) => {
+    rawRows.forEach((row) => {
         const strings = row
             .split(' ')
             .map(str => str.replace(/[^0-9a-z.]/gi, ''))
@@ -34,31 +41,47 @@ export const parse = (text: string | null): Record<string, any>[] | null => {
         let measurementsParts: string[] = [];
         let data: string[] = [];
 
+        if (!strings.some((str) => isData(str))) {
+            console.warn(`Skipping (no data): ${strings.join(' ')}`)
+            return;
+        }
+
         strings.forEach((str) => {
             if(isData(str)) {
                 data.push(str);
-            } else if (isMeasurement(str)) {
-                measurementsParts.push(str);
             } else {
-                console.warn(`skipping string: "${str}"`)
+                const measurement = getMeasurement(str);
+
+                if (measurement) {
+                    measurementsParts.push(measurement);
+                } else {
+                    console.warn(`Skipping (not measurement): "${str}"`)
+                }
             }
         });
 
-        measurements.push(measurementsParts.join(' '));
-        matrix.push(data);
+        rows.push([ measurementsParts.join(' '), ...data ]);
     });
 
-    const geos: Record<string, any>[] = [];
+    return [
+        [ ...rows.map(row => row[0]) ],
+        ...sizes.map((size, i) => {
+            return [ size, ...rows.map(row => row[i + 1])]
+        }),
+    ];
+
+    // const geos: Record<string, any>[] = [];
   
-    sizes.forEach((size, sizeIndex) => {
-        const geo: Record<string, any> = { size };
+    // sizes.forEach((size, sizeIndex) => {
+    //     const geo: Record<string, any> = { size };
         
-        measurements.filter(str => !!str).forEach((measurement, measurementIndex) => {
-            geo[measurement] = matrix[measurementIndex][sizeIndex] || 'n/a';
-        })
+    //     measurements.filter(str => !!str).forEach((measurement, measurementIndex) => {
+    //         console.log('setting measurement', measurement)
+    //         geo[measurement] = matrix[measurementIndex][sizeIndex] || 'n/a';
+    //     })
 
-        geos.push(geo);
-    });
+    //     geos.push(geo);
+    // });
 
-    return geos;
+    // return geos;
 }

@@ -48,7 +48,7 @@ function App() {
                   className={styles.input}
                   label="IMAGE URL"
                   size="small"
-                  defaultValue={'/images/giant.png'}
+                  placeholder={'/images/test.png'}
                   onKeyPress={onKeyPress}
                   variant="outlined"
                   onChange={(e) => setInput(e.target.value)}

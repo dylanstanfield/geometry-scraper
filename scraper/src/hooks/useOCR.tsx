@@ -30,8 +30,10 @@ export const useOCR = () => {
             await worker.initialize('eng');
     
             const { data: { text } } = await worker.recognize(image.url);
+
+            console.log(text);
     
-            image.setGeometry(parse(text));
+            image.setMatrix(parse(text) || []);
         }
     }, [ image.url ]);
 

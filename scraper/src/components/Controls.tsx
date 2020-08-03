@@ -68,8 +68,8 @@ export const Controls: React.FC = () => {
                     { '>' }
                 </Button>
             </Grid>
-            <Grid item md={2} />
-            <Grid item md={2}>
+            <Grid item md={1} />
+            <Grid item md={3}>
                 <Button variant={'outlined'}
                     color={'primary'}
                     fullWidth

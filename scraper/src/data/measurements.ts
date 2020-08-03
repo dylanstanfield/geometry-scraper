@@ -30,4 +30,6 @@ export const measurementTerms = [
     'actual',
     'standover',
     'chainstay',
+    'center',
+    'slope',
 ];
