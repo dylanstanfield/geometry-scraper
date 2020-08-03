@@ -58,7 +58,7 @@ export const Controls: React.FC = () => {
                 </Button>
             </Grid>
             <Grid item md={2} style={{ textAlign: 'center' }}>
-                { controls.selectedLabel }
+                { image.matrix.length <= 1 ? '...' : controls.selectedLabel }
             </Grid>
             <Grid item md={1}>
                 <Button disabled={controls.selectedIndex >= image.matrix.length - 1}
@@ -68,13 +68,14 @@ export const Controls: React.FC = () => {
                     { '>' }
                 </Button>
             </Grid>
-            <Grid item md={1} />
-            <Grid item md={3}>
+            <Grid item md={2} />
+            <Grid item md={2}>
                 <Button variant={'outlined'}
+                    disabled={image.matrix.length <= 1}
                     color={'primary'}
                     fullWidth
                     onClick={toggle}>
-                    Toggle { controls.selectedLabel }
+                    Set { image.matrix.length <= 1 ? '...' : controls.selectedLabel }
                 </Button>
             </Grid>
         </React.Fragment>

@@ -31,7 +31,7 @@ export const useOCR = () => {
     
             const { data: { text } } = await worker.recognize(image.url);
 
-            console.log(text);
+            console.debug(`Scraped text:\n`, text)
     
             image.setMatrix(parse(text) || []);
         }

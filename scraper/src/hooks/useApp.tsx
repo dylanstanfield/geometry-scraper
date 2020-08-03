@@ -60,7 +60,16 @@ export const AppProvider: React.FC = ({ children }) => {
     const [editorSelectedLabel, setEditorSelectedLabel] = useState('');
 
     useEffect(() => {
-        setEditorSelectedLabel(editorSelectedIndex === 0 ? 'KEYS' : imageMatrix[editorSelectedIndex][0]);
+        setImageMatrix([[]]);
+        setEditorFontSize('11');
+        setEditorApproved([]);
+        setEditorOverlayOffset(0);
+        setEditorSelectedIndex(0);
+        setEditorSelectedLabel('');
+    }, [imageUrl]);
+
+    useEffect(() => {
+        setEditorSelectedLabel(editorSelectedIndex === 0 ? 'keys' : imageMatrix[editorSelectedIndex][0]);
     }, [editorSelectedIndex, imageMatrix]);
 
     const state: AppContext = {

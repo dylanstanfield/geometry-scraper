@@ -42,7 +42,7 @@ export const parse = (text: string | null): string[][] | null => {
         let data: string[] = [];
 
         if (!strings.some((str) => isData(str))) {
-            console.warn(`Skipping (no data): ${strings.join(' ')}`)
+            console.debug(`Skipping (no data): ${strings.join(' ')}`)
             return;
         }
 
@@ -55,7 +55,7 @@ export const parse = (text: string | null): string[][] | null => {
                 if (measurement) {
                     measurementsParts.push(measurement);
                 } else {
-                    console.warn(`Skipping (not measurement): "${str}"`)
+                    console.debug(`Skipping (not measurement): "${str}"`)
                 }
             }
         });
@@ -63,25 +63,11 @@ export const parse = (text: string | null): string[][] | null => {
         rows.push([ measurementsParts.join(' '), ...data ]);
     });
 
+    // change rows to columns
     return [
         [ ...rows.map(row => row[0]) ],
         ...sizes.map((size, i) => {
             return [ size, ...rows.map(row => row[i + 1])]
         }),
     ];
-
-    // const geos: Record<string, any>[] = [];
-  
-    // sizes.forEach((size, sizeIndex) => {
-    //     const geo: Record<string, any> = { size };
-        
-    //     measurements.filter(str => !!str).forEach((measurement, measurementIndex) => {
-    //         console.log('setting measurement', measurement)
-    //         geo[measurement] = matrix[measurementIndex][sizeIndex] || 'n/a';
-    //     })
-
-    //     geos.push(geo);
-    // });
-
-    // return geos;
 }

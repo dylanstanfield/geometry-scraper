@@ -7,7 +7,7 @@ import { Controls } from '.';
 
 const colors = {
     green: '#00e676',
-    red: '#ffcdd2',
+    red: '#ef9a9a',
 }
 
 interface StylesProps {
@@ -96,12 +96,12 @@ export const Editor: React.FC = () => {
         <Grid container spacing={2} justify="center" alignItems="center">
             <Grid item xs={12}>
                 <Grid container justify="space-between">{
-                    image.matrix.map((row, i) => {
-                        const label = i === 0 ? 'KEYS' : row[0];
+                    image.matrix.length <= 1 ? <span>...</span> : image.matrix.map((row, i) => {
+                        const label = i === 0 ? 'keys' : row[0];
                         const approved = controls.approved.includes(label);
 
                         return (
-                            <span style={{ color: approved ? colors.green : colors.red }}>{label}</span>
+                            <span key={label} style={{ color: approved ? colors.green : colors.red }}>{label}</span>
                         )
                     })
                 }</Grid>
@@ -117,19 +117,22 @@ export const Editor: React.FC = () => {
                 />
                 <div className={styles.container}>
                     <img alt="being scraped" src={image.url.toString()} className={styles.image} />
-                    <div className={styles.overlay}>
-                        {
-                            image.matrix[controls.selectedIndex].map(
-                                (str, i) => (
-                                    <input type="text"
-                                        disabled={ controls.approved.includes(controls.selectedLabel) }
-                                        value={str}
-                                        onChange={(e) => updateMatrix(controls.selectedIndex, i, e.target.value)}
-                                        className={styles.overlayInput} />
+                    { image.matrix.length > 1 && (
+                        <div className={styles.overlay}>
+                            {
+                                image.matrix[controls.selectedIndex].map(
+                                    (str, i) => (
+                                        <input type="text"
+                                            key={i}
+                                            disabled={ controls.approved.includes(controls.selectedLabel) }
+                                            value={str}
+                                            onChange={(e) => updateMatrix(controls.selectedIndex, i, e.target.value)}
+                                            className={styles.overlayInput} />
+                                    )
                                 )
-                            )
-                        }
-                    </div>
+                            }
+                        </div>
+                    ) }
                 </div>
             </Grid>
         </Grid>
