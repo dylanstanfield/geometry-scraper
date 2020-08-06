@@ -1,65 +1,74 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, { useState } from 'react';
+import { Container, Grid, TextField, Button, LinearProgress, makeStyles, Theme } from '@material-ui/core';
+
+import { Editor } from '../components';
+import { useOCR, useApp } from '../hooks';
+
+const useStyles = makeStyles((theme: Theme) => ({
+  image: {
+    width: '100%',
+  },
+  placeholderImage: {
+    minWidth: '100%',
+    background: 'rgba(0, 0, 0, 0.1)',
+    height: '500px',
+    textAlign: 'center',
+    lineHeight: '500px',
+    textTransform: 'uppercase',
+  },
+  container: {
+    width: '100%',
+  },
+  inputContainer: {
+    paddingTop: theme.spacing(3),
+  }
+}));
 
 export default function Home() {
+  const styles = useStyles();
+  const { image } = useApp();
+  const { progress, progressLabel } = useOCR();
+  const [ input, setInput ] = useState<string | null>(null)
+
+  const onKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      image.setUrl(input);
+      (document.activeElement as HTMLElement).blur();
+    }
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+    <Container maxWidth="md">
+      <Grid container direction="column" className={styles.container}>
+        <Grid item>
+          <Grid container alignItems="center" spacing={2} className={styles.inputContainer}>
+            <Grid item xs={12} md={10}>
+              <TextField
+                fullWidth
+                label="IMAGE URL"
+                size="small"
+                placeholder={'/images/test.png'}
+                onKeyPress={onKeyPress}
+                variant="outlined"
+                onChange={(e) => setInput(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <Button variant="contained" color="primary" fullWidth onClick={() => image.setUrl(input)}>Scrape</Button>
+            </Grid>
+          </Grid>
+          <Grid container justify="space-between">
+            <Grid item>
+              <p>{ progressLabel ? progressLabel : 'Ready' } { progress > 0 ? `${progress}%` : '' }</p>
+            </Grid>
+            <Grid item>
+              <p>{ image.url ? image.url : '...' }</p>
+            </Grid>
+          </Grid>
+          <LinearProgress value={progress} variant="determinate" />
+          <Editor />
+        </Grid>
+      </Grid>
+    </Container>
+  );
 }

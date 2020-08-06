@@ -45,7 +45,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
         left: (props) => `${props.overlayOffset}%`,
         height: 'calc(100% - 12px)',
         backdropFilter: 'blur(3px)',
-        overflow: 'hiden',
+        overflow: 'hidden',
     },
     overlayInput: {
         flex: 1,
@@ -57,6 +57,9 @@ const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
         width: ({ fontSize, overlayNumChars }) => `${(parseInt(fontSize, 10) - 4) * overlayNumChars}px`,
         background: 'transparent',
     },
+    sizesContainer: {
+        paddingTop: theme.spacing(2),
+    }
 }));
 
 export const Editor: React.FC = () => {
@@ -65,7 +68,7 @@ export const Editor: React.FC = () => {
     const styles = useStyles({
         fontSize: controls.fontSize,
         overlayOffset: controls.overlayOffset,
-        overlayNumChars: image.matrix[controls.selectedIndex].reduce((len, str) => str.length > len ? str.length : len, 0),
+        overlayNumChars: image.matrix[controls.selectedIndex]?.reduce((len, str) => str.length > len ? str.length : len, 0) ?? 0,
         selectedLabel: controls.selectedLabel,
         approvedLabels: controls.approved,
     });
@@ -95,7 +98,7 @@ export const Editor: React.FC = () => {
     return (
         <Grid container spacing={2} justify="center" alignItems="center">
             <Grid item xs={12}>
-                <Grid container justify="space-between">{
+                <Grid container justify="space-between" className={styles.sizesContainer}>{
                     image.matrix.length <= 1 ? <span>...</span> : image.matrix.map((row, i) => {
                         const label = i === 0 ? 'keys' : row[0];
                         const approved = controls.approved.includes(label);

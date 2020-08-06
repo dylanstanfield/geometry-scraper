@@ -65,7 +65,7 @@ export const parse = (text: string | null): string[][] | null => {
 
     // change rows to columns
     return [
-        [ ...rows.map(row => row[0]) ],
+        [ 'sizes', ...rows.map(row => row[0]) ],
         ...sizes.map((size, i) => {
             return [ size, ...rows.map(row => row[i + 1])]
         }),
