@@ -1,17 +1,8 @@
-import glob from 'glob';
+import directoryTree from 'directory-tree';
 
 export default async (req, res) => {
-  glob('./public/screenshots/**/*.png', (error, files) => {
-    if (error) {
-      res.statusCode = 500;
-      res.send('Unable to load screenshots');
+  const screenshots = directoryTree('./public/screenshots', { extensions:/\.png$/ });
 
-      return;
-    }
-
-    res.statusCode = 200;
-    res.json({
-      screenshots: files.map(file => file.replace('./public', '')),
-    });
-  });
+  res.statusCode = 200;
+  res.json({ screenshots });
 }

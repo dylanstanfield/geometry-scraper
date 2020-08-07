@@ -6,8 +6,6 @@ interface AppContext {
         setMatrix: React.Dispatch<React.SetStateAction<string[][]>>,
         url: Tesseract.ImageLike | null,
         setUrl: React.Dispatch<React.SetStateAction<Tesseract.ImageLike | null>>,
-        input: string,
-        setInput: React.Dispatch<React.SetStateAction<string>>,
     },
     controls: {
         fontSize: string,
@@ -28,8 +26,6 @@ const defaultState: AppContext = {
         setMatrix: () => {},
         url: null,
         setUrl: () => {},
-        input: '',
-        setInput: () => {},
     },
     controls: {
         fontSize: '',
@@ -49,7 +45,6 @@ const ctx = React.createContext<AppContext>(defaultState);
 export const AppProvider: React.FC = ({ children }) => {
     // image
     const [imageUrl, setImageUrl] = useState<Tesseract.ImageLike | null>(null);
-    const [imageInput, setImageInput] = useState<string>('');
     const [imageMatrix, setImageMatrix] = useState<string[][]>([[]]);
 
     // controls
@@ -78,8 +73,6 @@ export const AppProvider: React.FC = ({ children }) => {
             setMatrix: setImageMatrix,
             url: imageUrl,
             setUrl: setImageUrl,
-            input: imageInput,
-            setInput: setImageInput,
         },
         controls: {
             fontSize: editorFontSize,

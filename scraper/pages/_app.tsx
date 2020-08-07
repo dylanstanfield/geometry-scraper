@@ -1,4 +1,5 @@
 import React from 'react';
+import { ReactQueryDevtools } from 'react-query-devtools';
 
 import '../styles/globals.css';
 
@@ -14,9 +15,12 @@ function MyApp({ Component, pageProps }) {
   }, []);
   
   return (
-    <AppProvider>
-      <Component {...pageProps} />
-    </AppProvider>
+    <React.Fragment>
+      <AppProvider>
+        <Component {...pageProps} />
+      </AppProvider>
+      <ReactQueryDevtools initialIsOpen />
+    </React.Fragment>
   )
 }
 

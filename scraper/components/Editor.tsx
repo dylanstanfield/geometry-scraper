@@ -21,6 +21,7 @@ interface StylesProps {
 const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
     container: {
         position: 'relative',
+        marginBottom: theme.spacing(10),
     },
     image: {
         width: '100%',

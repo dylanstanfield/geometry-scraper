@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { Container, Grid, TextField, Button, LinearProgress, makeStyles, Theme } from '@material-ui/core';
+import React from 'react';
+import { Container, Grid, LinearProgress, makeStyles, Theme } from '@material-ui/core';
+import { useQuery } from 'react-query';
 
-import { Editor } from '../components';
+import { Editor, FileBrowser } from '../components';
 import { useOCR, useApp } from '../hooks';
+import { getScreenshots } from '../data';
+import { DirectoryTree } from 'directory-tree';
 
 const useStyles = makeStyles((theme: Theme) => ({
   image: {
@@ -24,39 +27,24 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-export default function Home() {
+export async function getStaticProps() {
+  const { screenshots } = await getScreenshots()
+  return { props: { screenshots } }
+}
+
+const Home: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
   const styles = useStyles();
+  const { data } = useQuery([screenshots], getScreenshots, { initialData: { screenshots }})
   const { image } = useApp();
   const { progress, progressLabel } = useOCR();
-  const [ input, setInput ] = useState<string | null>(null)
-
-  const onKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      image.setUrl(input);
-      (document.activeElement as HTMLElement).blur();
-    }
-  }
 
   return (
     <Container maxWidth="md">
       <Grid container direction="column" className={styles.container}>
         <Grid item>
-          <Grid container alignItems="center" spacing={2} className={styles.inputContainer}>
-            <Grid item xs={12} md={10}>
-              <TextField
-                fullWidth
-                label="IMAGE URL"
-                size="small"
-                placeholder={'/images/test.png'}
-                onKeyPress={onKeyPress}
-                variant="outlined"
-                onChange={(e) => setInput(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <Button variant="contained" color="primary" fullWidth onClick={() => image.setUrl(input)}>Scrape</Button>
-            </Grid>
-          </Grid>
+          <FileBrowser screenshots={data.screenshots} />
+        </Grid>
+        <Grid item>
           <Grid container justify="space-between">
             <Grid item>
               <p>{ progressLabel ? progressLabel : 'Ready' } { progress > 0 ? `${progress}%` : '' }</p>
@@ -65,10 +53,16 @@ export default function Home() {
               <p>{ image.url ? image.url : '...' }</p>
             </Grid>
           </Grid>
+        </Grid>
+        <Grid item>
           <LinearProgress value={progress} variant="determinate" />
+        </Grid>
+        <Grid item>
           <Editor />
         </Grid>
       </Grid>
     </Container>
   );
 }
+
+export default Home;
