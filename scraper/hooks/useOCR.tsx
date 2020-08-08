@@ -3,6 +3,7 @@ import { useAsync } from 'react-use';
 import { createWorker } from 'tesseract.js';
 import { useApp } from '.';
 import { parse } from '../utils';
+import { useExtract } from './useExtract';
 
 interface WorkerLog {
     jobId: string
@@ -12,12 +13,12 @@ interface WorkerLog {
 }
 
 export const useOCR = () => {
-    const { image } = useApp();
+    const { url, setMatrix } = useExtract();
     const [ progress, setProgress ] = useState(0);
     const [ progressLabel, setProgressLabel ] = useState<string | null>(null);
 
     useAsync(async () => {
-        if (image.url) {
+        if (url) {
             const worker = createWorker({
                 logger: ((log: WorkerLog) => {
                     setProgressLabel(log.status);
@@ -29,13 +30,13 @@ export const useOCR = () => {
             await worker.loadLanguage('eng');
             await worker.initialize('eng');
     
-            const { data: { text } } = await worker.recognize(image.url);
+            const { data: { text } } = await worker.recognize(url);
 
             console.debug(`Scraped text:\n`, text)
     
-            image.setMatrix(parse(text) || []);
+            setMatrix(parse(text) || []);
         }
-    }, [ image.url ]);
+    }, [ url ]);
 
     return {
         progress,

@@ -2,8 +2,8 @@ import React from 'react';
 import { ReactQueryDevtools } from 'react-query-devtools';
 
 import '../styles/globals.css';
+import { ExtractProvider } from '../hooks';
 
-import { AppProvider } from '../hooks';
 
 function MyApp({ Component, pageProps }) {
   React.useEffect(() => {
@@ -16,10 +16,10 @@ function MyApp({ Component, pageProps }) {
   
   return (
     <React.Fragment>
-      <AppProvider>
+      <ExtractProvider>
         <Component {...pageProps} />
-      </AppProvider>
-      <ReactQueryDevtools initialIsOpen />
+        <ReactQueryDevtools initialIsOpen />
+      </ExtractProvider>
     </React.Fragment>
   )
 }

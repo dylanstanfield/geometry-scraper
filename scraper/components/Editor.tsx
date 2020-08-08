@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, makeStyles, Theme, Slider } from '@material-ui/core';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { useApp } from '../hooks';
+import { useExtract, useTransform } from '../hooks';
 import { Controls } from '.';
 
 const colors = {
@@ -64,35 +64,36 @@ const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
 }));
 
 export const Editor: React.FC = () => {
-    const { controls, image } = useApp();
+    const { matrix, setMatrix, url } = useExtract();
+    const { fontSize, overlayOffset, setOverlayOffset, selectedIndex, selectedLabel, approved } = useTransform();
     
     const styles = useStyles({
-        fontSize: controls.fontSize,
-        overlayOffset: controls.overlayOffset,
-        overlayNumChars: image.matrix[controls.selectedIndex]?.reduce((len, str) => str.length > len ? str.length : len, 0) ?? 0,
-        selectedLabel: controls.selectedLabel,
-        approvedLabels: controls.approved,
+        fontSize: fontSize,
+        overlayOffset: overlayOffset,
+        overlayNumChars: matrix[selectedIndex]?.reduce((len, str) => str.length > len ? str.length : len, 0) ?? 0,
+        selectedLabel: selectedLabel,
+        approvedLabels: approved,
     });
 
     useHotkeys('q', () => {
-        if (controls.overlayOffset > 1) {
-            controls.setOverlayOffset(controls.overlayOffset - 2);
+        if (overlayOffset > 1) {
+            setOverlayOffset(overlayOffset - 2);
         }
-    }, {}, [controls.overlayOffset]);
+    }, {}, [overlayOffset]);
 
     useHotkeys('e', () => {
-        if (controls.overlayOffset < 99) {
-            controls.setOverlayOffset(controls.overlayOffset + 2);
+        if (overlayOffset < 99) {
+            setOverlayOffset(overlayOffset + 2);
         }
-    }, {}, [controls.overlayOffset]);
+    }, {}, [overlayOffset]);
 
     const updateMatrix = (i1: number, i2: number, newValue: string) => {
-        const newMatrix = [ ...image.matrix ];
+        const newMatrix = [ ...matrix ];
         newMatrix[i1][i2] = newValue;
-        image.setMatrix(newMatrix);
+        setMatrix(newMatrix);
     }
 
-    if (!image.url) {
+    if (!url) {
         return <div className={styles.placeholder}>Enter Image URL</div>
     }
     
@@ -100,12 +101,12 @@ export const Editor: React.FC = () => {
         <Grid container spacing={2} justify="center" alignItems="center">
             <Grid item xs={12}>
                 <Grid container justify="space-between" className={styles.sizesContainer}>{
-                    image.matrix.length <= 1 ? <span>...</span> : image.matrix.map((row, i) => {
+                    matrix.length <= 1 ? <span>...</span> : matrix.map((row, i) => {
                         const label = i === 0 ? 'keys' : row[0];
-                        const approved = controls.approved.includes(label);
+                        const isApproved = approved.includes(label);
 
                         return (
-                            <span key={label} style={{ color: approved ? colors.green : colors.red }}>{label}</span>
+                            <span key={label} style={{ color: isApproved ? colors.green : colors.red }}>{label}</span>
                         )
                     })
                 }</Grid>
@@ -116,21 +117,21 @@ export const Editor: React.FC = () => {
                     defaultValue={0}
                     min={0}
                     max={100}
-                    value={controls.overlayOffset}
-                    onChange={(_, value) => controls.setOverlayOffset(value as number)}
+                    value={overlayOffset}
+                    onChange={(_, value) => setOverlayOffset(value as number)}
                 />
                 <div className={styles.container}>
-                    <img alt="being scraped" src={image.url.toString()} className={styles.image} />
-                    { image.matrix.length > 1 && (
+                    <img alt="being scraped" src={url.toString()} className={styles.image} />
+                    { matrix.length > 1 && (
                         <div className={styles.overlay}>
                             {
-                                image.matrix[controls.selectedIndex].map(
+                                matrix[selectedIndex].map(
                                     (str, i) => (
                                         <input type="text"
                                             key={i}
-                                            disabled={ controls.approved.includes(controls.selectedLabel) }
+                                            disabled={ approved.includes(selectedLabel) }
                                             value={str}
-                                            onChange={(e) => updateMatrix(controls.selectedIndex, i, e.target.value)}
+                                            onChange={(e) => updateMatrix(selectedIndex, i, e.target.value)}
                                             className={styles.overlayInput} />
                                     )
                                 )

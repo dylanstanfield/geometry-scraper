@@ -3,7 +3,7 @@ import { Container, Grid, LinearProgress, makeStyles, Theme } from '@material-ui
 import { useQuery } from 'react-query';
 
 import { Editor, FileBrowser } from '../components';
-import { useOCR, useApp } from '../hooks';
+import { useOCR, useExtract, TransformProvider } from '../hooks';
 import { getScreenshots } from '../data';
 import { DirectoryTree } from 'directory-tree';
 
@@ -35,7 +35,7 @@ export async function getStaticProps() {
 const Home: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
   const styles = useStyles();
   const { data } = useQuery([screenshots], getScreenshots, { initialData: { screenshots }})
-  const { image } = useApp();
+  const { url } = useExtract();
   const { progress, progressLabel } = useOCR();
 
   return (
@@ -50,7 +50,7 @@ const Home: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
               <p>{ progressLabel ? progressLabel : 'Ready' } { progress > 0 ? `${progress}%` : '' }</p>
             </Grid>
             <Grid item>
-              <p>{ image.url ? image.url : '...' }</p>
+              <p>{ url ? url : '...' }</p>
             </Grid>
           </Grid>
         </Grid>
@@ -58,7 +58,9 @@ const Home: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
           <LinearProgress value={progress} variant="determinate" />
         </Grid>
         <Grid item>
-          <Editor />
+          <TransformProvider>
+            <Editor />
+          </TransformProvider>
         </Grid>
       </Grid>
     </Container>

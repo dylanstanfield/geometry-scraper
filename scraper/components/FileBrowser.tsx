@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { List, ListItem, makeStyles, Theme, Collapse, ListItemText, ListItemIcon } from "@material-ui/core";
 import { Folder, FolderOpen, ExpandLess, ExpandMore, Image } from '@material-ui/icons';
 import { DirectoryTree } from "directory-tree";
-import { useApp } from '../hooks';
+import { useExtract } from '../hooks';
 
-const useStyles = makeStyles<{ index: number }>((theme: Theme) => ({
+const useStyles = makeStyles<Theme, { index: number }>((theme: Theme) => ({
     container: {
       border: '2px solid #eee',
       borderRadius: '2px',
@@ -21,7 +21,7 @@ const useStyles = makeStyles<{ index: number }>((theme: Theme) => ({
 const Directory: React.FC<{ directory: DirectoryTree, index: number }> = ({ directory, index }) => {
     const classes = useStyles({ index });
     const [open, setOpen] = useState(false);
-    const { image } = useApp();
+    const { setUrl } = useExtract();
 
     const handleClick = () => {
         setOpen(!open);
@@ -41,11 +41,11 @@ const Directory: React.FC<{ directory: DirectoryTree, index: number }> = ({ dire
                     {
                         directory.children?.map((child) => {
                             if (child.type === 'directory') {
-                                return <Directory directory={child} index={index + 1} />
+                                return <Directory key={child.path} directory={child} index={index + 1} />
                             }
         
                             return (
-                                <ListItem button onClick={() => image.setUrl(child.path.replace('public', ''))} className={classes.nestedFile}>
+                                <ListItem key={child.path} button onClick={() => setUrl(child.path.replace('public', ''))} className={classes.nestedFile}>
                                     <ListItemIcon>
                                         <Image />
                                     </ListItemIcon>
@@ -61,7 +61,7 @@ const Directory: React.FC<{ directory: DirectoryTree, index: number }> = ({ dire
 }
 
 export const FileBrowser: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
-    const styles = useStyles();
+    const styles = useStyles({ index: 0 });
 
     return (
         <List className={styles.container}>
