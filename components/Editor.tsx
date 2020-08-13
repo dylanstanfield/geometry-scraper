@@ -1,8 +1,8 @@
 import React from 'react';
-import { Grid, makeStyles, Theme, Slider } from '@material-ui/core';
+import { Grid, makeStyles, Theme, Slider, Button } from '@material-ui/core';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { useExtract, useTransform } from '../hooks';
+import { useExtract, useTransform, useLoad } from '../hooks';
 import { Controls } from '.';
 
 const colors = {
@@ -20,8 +20,11 @@ interface StylesProps {
 
 const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
     container: {
-        position: 'relative',
+        paddingTop: theme.spacing(2),
         marginBottom: theme.spacing(10),
+    },
+    imageContainer: {
+        position: 'relative',
     },
     image: {
         width: '100%',
@@ -59,13 +62,14 @@ const useStyles = makeStyles<Theme, StylesProps>((theme: Theme) => ({
         background: 'transparent',
     },
     sizesContainer: {
-        paddingTop: theme.spacing(2),
+        paddingTop: theme.spacing(1),
     }
 }));
 
 export const Editor: React.FC = () => {
     const { matrix, setMatrix, url } = useExtract();
     const { fontSize, overlayOffset, setOverlayOffset, selectedIndex, selectedLabel, approved } = useTransform();
+    const { submit } = useLoad();
     
     const styles = useStyles({
         fontSize: fontSize,
@@ -98,19 +102,7 @@ export const Editor: React.FC = () => {
     }
     
     return (
-        <Grid container spacing={2} justify="center" alignItems="center">
-            <Grid item xs={12}>
-                <Grid container justify="space-between" className={styles.sizesContainer}>{
-                    matrix.length <= 1 ? <span>...</span> : matrix.map((row, i) => {
-                        const label = i === 0 ? 'keys' : row[0];
-                        const isApproved = approved.includes(label);
-
-                        return (
-                            <span key={label} style={{ color: isApproved ? colors.green : colors.red }}>{label}</span>
-                        )
-                    })
-                }</Grid>
-            </Grid>
+        <Grid container spacing={2} justify="center" alignItems="center" className={styles.container}>
             <Controls />
             <Grid item xs={12}>
                 <Slider
@@ -120,7 +112,7 @@ export const Editor: React.FC = () => {
                     value={overlayOffset}
                     onChange={(_, value) => setOverlayOffset(value as number)}
                 />
-                <div className={styles.container}>
+                <div className={styles.imageContainer}>
                     <img alt="being scraped" src={url.toString()} className={styles.image} />
                     { matrix.length > 1 && (
                         <div className={styles.overlay}>
@@ -139,6 +131,33 @@ export const Editor: React.FC = () => {
                         </div>
                     ) }
                 </div>
+            </Grid>
+            <Grid item xs={12}>
+                <Grid container
+                    justify="space-between"
+                    alignItems="center"
+                    className={styles.sizesContainer}>
+                    { matrix.length <= 1 ? <span>...</span> : matrix.map((row, i) => {
+                        const label = i === 0 ? 'keys' : row[0];
+                        const isApproved = approved.includes(label);
+                        const isSelected = i === selectedIndex;
+
+                        return (
+                            <span key={label} style={{
+                                color: isApproved ? colors.green : colors.red,
+                                borderBottom: isSelected ? '2px solid black' : undefined,
+                                minWidth: '50px',
+                                textAlign: 'center',
+                            }}>{label}</span>
+                        )
+                    }) }
+                    <Button variant="contained"
+                        onClick={submit}
+                        disabled={approved.length !== matrix.length}
+                        color="primary">
+                        Approve
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
     )

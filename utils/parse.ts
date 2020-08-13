@@ -60,7 +60,7 @@ export const parse = (text: string | null): string[][] | null => {
             }
         });
 
-        rows.push([ measurementsParts.join(' '), ...data ]);
+        rows.push([ measurementsParts.join('_'), ...data ]);
     });
 
     // change rows to columns

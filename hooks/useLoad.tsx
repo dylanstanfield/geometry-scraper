@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useExtract } from './useExtract';
 
 interface LoadContext {
+    submit: () => void,
     make: string,
     setMake: React.Dispatch<React.SetStateAction<string>>,
     model: string,
@@ -10,6 +12,7 @@ interface LoadContext {
 }
 
 const defaultState: LoadContext = {
+    submit: () => {},
     make: '',
     setMake: () => {},
     model: '',
@@ -21,9 +24,28 @@ const defaultState: LoadContext = {
 const ctx = React.createContext<LoadContext>(defaultState);
 
 export const LoadProvider: React.FC = ({ children }) => {
+    const { matrix } = useExtract();
+
     const [make, setMake] = useState<string>('');
     const [model, setModel] = useState<string>('');
     const [year, setYear] = useState<number | null>(null);
+
+    function submit() {
+      const [ keys, ...data ] = matrix;
+      const geometries = [];
+      
+      data.forEach((row) => {
+        const geometry = {};
+
+        keys.forEach((k, i) => {
+          geometry[k] = row[i]
+        })
+
+        geometries.push(geometry);
+      })
+
+      console.log(geometries);
+    }
 
     const state: LoadContext = {
         make,
@@ -32,6 +54,7 @@ export const LoadProvider: React.FC = ({ children }) => {
         setModel,
         year,
         setYear,
+        submit,
     }
     
    return (

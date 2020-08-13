@@ -3,7 +3,7 @@ import { Container, Grid, LinearProgress, makeStyles, Theme } from '@material-ui
 import { useQuery } from 'react-query';
 
 import { Editor, FileBrowser } from '../components';
-import { useOCR, useExtract, TransformProvider } from '../hooks';
+import { useOCR, useExtract, TransformProvider, LoadProvider } from '../hooks';
 import { getScreenshots } from '../data';
 import { DirectoryTree } from 'directory-tree';
 
@@ -59,7 +59,9 @@ const Home: React.FC<{ screenshots: DirectoryTree }> = ({ screenshots }) => {
         </Grid>
         <Grid item>
           <TransformProvider>
-            <Editor />
+            <LoadProvider>
+              <Editor />
+            </LoadProvider>
           </TransformProvider>
         </Grid>
       </Grid>
